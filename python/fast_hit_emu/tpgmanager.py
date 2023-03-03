@@ -62,7 +62,8 @@ class TPGManager:
         return hits
 
     def run_packet(self, rtpc_df, channel, ini_pedestal, ini_accum, ssr_adcs, tov_min, skip_hf) -> list:
-        tstamp = rtpc_df.index[0].astype(int)
+        #tstamp = rtpc_df.index[0].astype(int)
+        tstamp = rtpc_df.index[0]
         #rich.print("in packet", tstamp)
         adcs = rtpc_df.values
         tpg = fast_hit_emu.TPGenerator(self.fir_path, self.fir_shift, self.threshold)
@@ -145,6 +146,7 @@ class TPGManager:
             min_remainder = np.min(list(map(y, seq)))
             min_indx = np.argmin(list(map(y, seq)))
             shift = seq[min_indx]
+            print(f'Offset required to align emu TPs: {shift}')
         else:
             shift = 0
 
@@ -153,7 +155,8 @@ class TPGManager:
         ped_df = []
         pedval_df = []
         fir_df = []
-        for chan in track(chan_list, description="Processing channels..."):
+        #for chan in track(chan_list, description="Processing channels..."):
+        for chan in chan_list:
             if skip_hf:
                 ped_chan_df, pedval_chan_df, fir_chan_df = self.run_channel(rtpc_df, chan, shift, pedchan, skip_hf=skip_hf)
             else:
@@ -174,5 +177,3 @@ class TPGManager:
         tp_df = tp_df.loc[tp_df['ts'] != -1].reset_index(drop=True)
 
         return tp_df, ped_df, pedval_df, fir_df
-    
-print("Yay")

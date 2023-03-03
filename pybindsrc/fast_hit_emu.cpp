@@ -21,7 +21,7 @@ py::class_<fast_hit_emu::TPGenerator>(m, "TPGenerator")
 
 py::class_<fast_hit_emu::TPStitcher>(m, "TPStitcher")
     .def(py::init())
-    .def("hit_stitcher", &fast_hit_emu::TPStitcher::hit_stitcher, py::arg("fwtps"), py::arg("offline_ch"))
+    .def("hit_stitcher", &fast_hit_emu::TPStitcher::hit_stitcher, py::arg("fwtps"))
     ;
 
 }

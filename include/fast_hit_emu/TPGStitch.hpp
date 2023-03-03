@@ -18,7 +18,7 @@ namespace fast_hit_emu{
         TPStitcher();
         ~TPStitcher();
 
-        std::vector<std::vector<int>> hit_stitcher(std::vector<std::vector<int>> fwtps, int offline_ch);
+        std::vector<std::vector<int>> hit_stitcher(std::vector<std::vector<int>> fwtps);
     };
 
 }

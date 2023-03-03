@@ -9,7 +9,7 @@ fast_hit_emu::TPStitcher::~TPStitcher() {
 }
 
 std::vector<std::vector<int>> 
-fast_hit_emu::TPStitcher::hit_stitcher(std::vector<std::vector<int>> fwtps, int offline_ch){
+fast_hit_emu::TPStitcher::hit_stitcher(std::vector<std::vector<int>> fwtps){
     std::vector<std::vector<int>> tps;
 
     int n_fwtps = fwtps.size();
@@ -27,15 +27,16 @@ fast_hit_emu::TPStitcher::hit_stitcher(std::vector<std::vector<int>> fwtps, int 
     for(int i=0; i < n_fwtps; i++){
 
         int _tstamp  = fwtps.at(i)[0];
-        int _start   = fwtps.at(i)[1];
-        int _end     = fwtps.at(i)[2];
-        int _tpeak   = fwtps.at(i)[3];
-        int _hpeak   = fwtps.at(i)[4];
-        int _sum_adc = fwtps.at(i)[5];
-        int _hitcont = fwtps.at(i)[6];
+        int _offline = fwtps.at(i)[1];
+        int _start   = fwtps.at(i)[4];
+        int _end     = fwtps.at(i)[5];
+        int _tpeak   = fwtps.at(i)[6];
+        int _hpeak   = fwtps.at(i)[7];
+        int _sum_adc = fwtps.at(i)[8];
+        int _hitcont = fwtps.at(i)[9];
 
         if((_tstamp-tstamp != 32*64)&(cont == 1) or (_start != 0)&(cont == 1)){
-            std::vector<int> tp = {start, tpeak, end-start, offline_ch, sum_adc, hpeak};
+            std::vector<int> tp = {start, tpeak, end-start, _offline, sum_adc, hpeak};
             tps.push_back(tp);
             first = 1;
             cont  = 0;
@@ -61,7 +62,7 @@ fast_hit_emu::TPStitcher::hit_stitcher(std::vector<std::vector<int>> fwtps, int 
         if((_hitcont == 1)&(_end == 63)){
             cont = 1;
         } else {
-            std::vector<int> tp = {start, tpeak, end-start, offline_ch, sum_adc, hpeak};
+            std::vector<int> tp = {start, tpeak, end-start, _offline, sum_adc, hpeak};
             tps.push_back(tp);
             first = 1;
             cont  = 0;
