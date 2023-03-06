@@ -87,9 +87,11 @@ class TPGManager:
 
         return tp_array, adcs_sub, pedval, adcs_fir, ini_pedestal, ini_accum
 
-    def run_channel(self, rtpc_df, channel, shift=0, pedchan=False, skip_hf=False) -> list:
+    def run_channel(self, rtpc_df, channel, shift=0, pedchan=False, pedmed=False, skip_hf=False) -> list:
         if pedchan:
             self.initial_pedestal = rtpc_df[channel].values[0]
+        elif pedmed:
+            self.initial_pedestal = int(rtpc_df[channel].median())
         tpg = fast_hit_emu.TPGenerator(self.fir_path, self.fir_shift, self.threshold)
         n_packets = (rtpc_df[channel].shape[0]-shift)//64
         
@@ -139,14 +141,14 @@ class TPGManager:
 
         return tp_df, ped_df, pedval_df, fir_df
 
-    def run_capture(self, rtpc_df, ts_tpc_min=0, ts_tp_min=0, pedchan=False, align=True, skip_hf=False) -> list:
+    def run_capture(self, rtpc_df, chan_mask, ts_tpc_min=0, ts_tp_min=0, pedchan=False, pedmed=False, align=True, skip_hf=False) -> list:
         if align:
             y = lambda x: (ts_tpc_min+32*x-ts_tp_min)%2048
             seq = np.arange(0,64,1)
             min_remainder = np.min(list(map(y, seq)))
             min_indx = np.argmin(list(map(y, seq)))
             shift = seq[min_indx]
-            print(f'Offset required to align emu TPs: {shift}')
+            #print(f'Offset required to align emu TPs: {shift}')
         else:
             shift = 0
 
@@ -157,10 +159,11 @@ class TPGManager:
         fir_df = []
         #for chan in track(chan_list, description="Processing channels..."):
         for chan in chan_list:
+            if chan in chan_mask: continue
             if skip_hf:
-                ped_chan_df, pedval_chan_df, fir_chan_df = self.run_channel(rtpc_df, chan, shift, pedchan, skip_hf=skip_hf)
+                ped_chan_df, pedval_chan_df, fir_chan_df = self.run_channel(rtpc_df, chan, shift, pedchan, pedmed, skip_hf=skip_hf)
             else:
-                tp_chan_df, ped_chan_df, pedval_chan_df, fir_chan_df = self.run_channel(rtpc_df, chan, shift, pedchan, skip_hf=skip_hf)
+                tp_chan_df, ped_chan_df, pedval_chan_df, fir_chan_df = self.run_channel(rtpc_df, chan, shift, pedchan, pedmed, skip_hf=skip_hf)
                 tp_df.append(tp_chan_df)
             ped_df.append(ped_chan_df)
             pedval_df.append(pedval_chan_df)
